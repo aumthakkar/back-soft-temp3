@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: py-ing
+spec:
+  rules:
+  - host: "python-app.test.com"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: py3-svc
+            port:
+              number: 8080
+  
