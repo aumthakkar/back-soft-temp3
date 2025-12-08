@@ -1,0 +1,2 @@
+This app's name is: ${{values.app_env}}
+This app's environment is: ${{values.app_env}}
