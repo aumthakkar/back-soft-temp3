@@ -59,28 +59,35 @@ jobs:
           chmod +x /tmp/argocd
           sudo mv /tmp/argocd /usr/local/bin/argocd
 
-      - name: ArgoCD Create and Sync
+      -
+        name: ArgoCD login
         shell: bash
         run: |
           argocd login argocd-server.argocd \
-          --grpc-web \
           --insecure \
-          --username admin \
-          --password ${{ '${{ secrets.ARGOCD_PASSWORD }}' }}
+          --grpc-web \
+          --username ${{ '${{secrets.ARGOCD_USERNAME}}' }} \
+          --password ${{ '${{secrets.ARGOCD_PASSWORD}}' }}
 
-          # Connect to the github repo
+      -
+        name: ArgoCD Repo add, Create App and Sync
+        shell: bash
+        run: |
+          # Connects to the github repo
           repo=https://github.com/aum-thakkar/${{values.app_name}}.git
-          argocd repo list ${repo} | grep ${{values.app_name}} || argocd repo add ${repo}
-          
+          argocd repo list ${repo} | grep ${repo} || argocd repo add ${repo}
+        
+          # Creates the app if it doesn't exist
           argocd app get ${{values.app_name}} || argocd app create ${{values.app_name}} \
-          --dest-server https://kubernetes.default.svc
           --dest-namespace ${{values.app_env}} \
-          --name ${{values.app_name}} \
+          --dest-server https://kubernetes.default.svc \
+          --path charts/${{values.app_name}} \
           --repo ${repo} \
-          --revision main
-          --sync-option Createnamespace=true \
+          --revision main \
           --sync-policy manual \
-          --sync-source-path charts/${{values.app_name}}
+          --sync-option CreateNamespace=true \
+          --values values-${{values.app_env}}.yaml
 
-          argocd app sync ${{ values.app_name }}
-          argocd app wait ${{ values.app_name }} --timeout 120
+          # Sync the App
+          argocd app sync ${{values.app_name}}
+          argocd app wait ${{values.app_name}} --timeout 120
