@@ -45,7 +45,7 @@ jobs:
           echo ${{ '${{ needs.ci.outputs.commit_id }}' }}
           sudo apt update && sudo apt install python3-pip -y
           pip install yq --break-system-packages
-          yq -Yi '.image.tag = ${{ "${{ needs.ci.outputs.commit_id }}" }}' charts/${{ values.app_name }}/values-${{ values.app_env }}.yaml
+          yq -Yi '.image.tag = "${{ '${{ needs.ci.outputs.commit_id }}' }}"' charts/${{ values.app_name }}/values-${{ values.app_env }}.yaml
 
       - name: Commit change back to your github repo
         uses: EndBug/add-and-commit@v9
