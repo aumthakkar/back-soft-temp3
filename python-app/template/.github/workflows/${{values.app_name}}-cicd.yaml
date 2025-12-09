@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: aumthakkar/${{ values.app_name }}:${{ '${{ env.COMMIT_ID }}' }}
+          tags: aum-thakkar/${{ values.app_name }}:${{ '${{ env.COMMIT_ID }}' }}
     
     outputs:
       commit_id: ${{ '${{ env.COMMIT_ID }}' }}
@@ -69,10 +69,6 @@ jobs:
           --username ${{ '${{secrets.ARGOCD_USERNAME}}' }} \
           --password ${{ '${{secrets.ARGOCD_PASSWORD}}' }}
 
-      -
-        name: ArgoCD Repo add, Create App and Sync
-        shell: bash
-        run: |
           # Connects to the github repo
           repo=https://github.com/aum-thakkar/${{values.app_name}}.git
           argocd repo list ${repo} | grep ${repo} || argocd repo add ${repo}
@@ -87,7 +83,6 @@ jobs:
           --sync-policy manual \
           --sync-option CreateNamespace=true \
           --values values-${{values.app_env}}.yaml
-
           # Sync the App
           argocd app sync ${{values.app_name}}
           argocd app wait ${{values.app_name}} --timeout 120
